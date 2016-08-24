@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: uq/DXNn5SKV9/1obJ5HBy9mg9l5PVCqF1eGuoAYU17JUd6nIk+KiXe1InZ7zu1jxyc6tWinRUngyOKIU65D0uDYXFwcz+mQ/vZLA1aX1TLHcM/hSDp7V+FnPVeEhmQYAQqcm8Qr4j/g+RXb87v5LEuk9K2h9TYBJJrbeOXj0cWlCH81SYEF7gE2QddKLyYGaSYLfkcRjxFyJwwSM3QYPh+nbZjJH6etVwr7uLPyraURWAB5fwFk3E8CE5UNOqd6+n6sbGy/cRrvZhHhrCee9/bbIG9KUaYDO33szJw4PlckOCszj08cf3iseyKX14SDV1NKYJkYRtvLQ93hYKQujUf+ZdHV8B6Fn+4B94f8TguKNZ6ZqVgaFl4zVU6HMXaW6feSYXBw19LkDm8h9+pvL5GPe2spGR2OeDbAfzP/a847UqXeZwo6JwCO8UGF3rBAb3w8/zcgb3tUj05uDrqVXUUibNYM7ShL645el2MU/9mDAwtRbxus+nY0TomfSsiwJex/1fO83z9NFCZKbyeH+ZZ7G0B7F4739ihS0hg/V4CnBG3VvjdmS4BZPt9mV4jPV+Z8h3VCS7xqHpVz3KSZQMyjLD9f82zjAg3/3XoBgyDxzheqtrQObCfWBXIo/17UXFJ0HF4C6EdFs9GTd96w1EIc4D/B8jJSuxT1G+bgQxqQ=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/An-Essay-on-Man--Moral-Essays-and-Satires_2428
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
